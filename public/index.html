@@ -55,10 +55,12 @@
     🎯 You’re around <span id="position">1,000</span> in line
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+  <!-- Firebase SDK (Compat Mode - Eski ama çalışan versiyon) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
+  <script>
+    // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyCZOdivl39slGQDsVPrRaAxUZrXh7pzmzA",
       authDomain: "skillswap-global-3b0b0.firebaseapp.com",
@@ -68,10 +70,11 @@
       appId: "1:302333927844:web:26dec0c3674ff191316131"
     };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+    // Initialize
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
-    async function joinWaitlist() {
+    function joinWaitlist() {
       const name = document.getElementById('name').value;
       const email = document.getElementById('email').value;
       const country = document.getElementById('country').value;
@@ -86,25 +89,24 @@
 
       const inviteCode = "SKILL" + Math.floor(10000 + Math.random() * 90000);
 
-      try {
-        await addDoc(collection(db, "waitlist"), {
-          name: name,
-          email: email,
-          country: country,
-          canTeach: canTeach,
-          wantToLearn: wantToLearn,
-          device: device,
-          inviteCode: inviteCode,
-          referredBy: null,
-          signupDate: serverTimestamp()
-        });
+      db.collection("waitlist").add({
+        name: name,
+        email: email,
+        country: country,
+        canTeach: canTeach,
+        wantToLearn: wantToLearn,
+        device: device,
+        inviteCode: inviteCode,
+        referredBy: null,
+        signupDate: firebase.firestore.FieldValue.serverTimestamp()
+      }).then(() => {
         alert("🎉 Thank you! You’re on the waitlist.");
         const current = parseInt(document.getElementById("position").textContent.replace(/,/g, ""));
         document.getElementById("position").textContent = (current + Math.floor(Math.random() * 20)).toLocaleString();
-      } catch (e) {
-        console.error("Error:", e);
+      }).catch((error) => {
+        console.error("Error:", error);
         alert("Something went wrong. Try again.");
-      }
+      });
     }
   </script>
 </body>
