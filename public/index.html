@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SkillSwap</title>
+  <style>
+    body { font-family: Arial; max-width: 500px; margin: 40px auto; padding: 20px; }
+    input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 6px; }
+    button { width: 100%; padding: 14px; background: #2563eb; color: white; border: none; border-radius: 6px; font-size: 16px; margin-top: 10px; }
+    .counter { text-align: center; margin: 20px 0; color: #555; }
+    h1 { text-align: center; }
+    p { text-align: center; color: #666; }
+  </style>
+</head>
+<body>
+  <h1>🌍 SkillSwap</h1>
+  <p>Teach a skill. Learn a skill. No money. Just swap.</p>
+
+  <div class="form-group">
+    <input type="text" id="name" placeholder="Full Name" required>
+  </div>
+  <div class="form-group">
+    <input type="email" id="email" placeholder="Email Address" required>
+  </div>
+  <div class="form-group">
+    <select id="country">
+      <option value="">Country</option>
+      <option value="Turkey">Turkey</option>
+      <option value="Germany">Germany</option>
+      <option value="USA">USA</option>
+      <option value="India">India</option>
+      <option value="Brazil">Brazil</option>
+      <option value="Mexico">Mexico</option>
+      <option value="Other">Other</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <input type="text" id="canTeach" placeholder="I can teach..." required>
+  </div>
+  <div class="form-group">
+    <input type="text" id="wantToLearn" placeholder="I want to learn..." required>
+  </div>
+  <div class="form-group">
+    <select id="device">
+      <option value="">Device</option>
+      <option value="Android">Android</option>
+      <option value="iPhone">iPhone</option>
+      <option value="Both">Both</option>
+    </select>
+  </div>
+  <button onclick="joinWaitlist()">Join Waitlist</button>
+
+  <div class="counter">
+    🎯 You’re around <span id="position">1,000</span> in line
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCZOdivl39slGQDsVPrRaAxUZrXh7pzmzA",
+      authDomain: "skillswap-global-3b0b0.firebaseapp.com",
+      projectId: "skillswap-global-3b0b0",
+      storageBucket: "skillswap-global-3b0b0.firebasestorage.app",
+      messagingSenderId: "302333927844",
+      appId: "1:302333927844:web:26dec0c3674ff191316131"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    async function joinWaitlist() {
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      const country = document.getElementById('country').value;
+      const canTeach = document.getElementById('canTeach').value;
+      const wantToLearn = document.getElementById('wantToLearn').value;
+      const device = document.getElementById('device').value;
+
+      if (!name || !email || !canTeach || !wantToLearn) {
+        alert("Please fill all required fields!");
+        return;
+      }
+
+      const inviteCode = "SKILL" + Math.floor(10000 + Math.random() * 90000);
+
+      try {
+        await addDoc(collection(db, "waitlist"), {
+          name: name,
+          email: email,
+          country: country,
+          canTeach: canTeach,
+          wantToLearn: wantToLearn,
+          device: device,
+          inviteCode: inviteCode,
+          referredBy: null,
+          signupDate: serverTimestamp()
+        });
+        alert("🎉 Thank you! You’re on the waitlist.");
+        const current = parseInt(document.getElementById("position").textContent.replace(/,/g, ""));
+        document.getElementById("position").textContent = (current + Math.floor(Math.random() * 20)).toLocaleString();
+      } catch (e) {
+        console.error("Error:", e);
+        alert("Something went wrong. Try again.");
+      }
+    }
+  </script>
+</body>
+</html>
